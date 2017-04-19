@@ -1,0 +1,81 @@
+
+MODULE main
+
+VAR 
+horizontal_dist:0 .. 1600;
+vertical_distance:0 ..  1200;
+move_direction:{ETW ,WTE , NTS, STN};
+pilot_response		:		boolean;
+--auto_resolver : boolean;
+
+DEFINE
+COC:= ((horizontal_dist>1600) & (auto_resolver=FALSE)) ;
+auto_resolver:= ((horizontal_dist<=1000) & (pilot_response=FALSE));
+
+ASSIGN 
+init(pilot_response):=TRUE;
+
+
+
+
+VAR
+atm_layer : {layer_1,layer_2,layer_3,layer_4};
+
+ASSIGN
+init(atm_layer):=layer_3;
+
+  next(atm_layer):=
+  case
+            (atm_layer=layer_3) & (COC=FALSE) & (pilot_response=FALSE ) & (horizontal_dist=1000) & (move_direction=ETW)&(auto_resolver=TRUE) :layer_4;
+            (atm_layer=layer_3) & (COC=FALSE) & (pilot_response=FALSE ) & (horizontal_dist=1000) & (move_direction=WTE)&(auto_resolver=TRUE):layer_2;
+            (atm_layer=layer_3) & (COC=FALSE) & (pilot_response=FALSE ) & (horizontal_dist=1000) & (move_direction=NTS)&(auto_resolver=TRUE):layer_2;
+            (atm_layer=layer_3) & (COC=FALSE) & (pilot_response=FALSE ) & (horizontal_dist=1000) & (move_direction=STN)&(auto_resolver=TRUE):layer_4;
+            TRUE:atm_layer;
+  esac;
+
+
+VAR
+climb:         {up, down,no};
+
+ASSIGN
+init(climb):=no;
+ next(climb):=
+ case
+ 			(atm_layer=layer_3) & (COC=FALSE) & (pilot_response=FALSE ) & (horizontal_dist=1000) & (move_direction=ETW)&(auto_resolver=TRUE) :up;
+ 			(atm_layer=layer_3) & (COC=FALSE) & (pilot_response=FALSE ) & (horizontal_dist=1000) & (move_direction=WTE)&(auto_resolver=TRUE) :down;
+   			(atm_layer=layer_3) & (COC=FALSE) & (pilot_response=FALSE ) & (horizontal_dist=1000) & (move_direction=NTS)&(auto_resolver=TRUE) :down;
+   			(atm_layer=layer_3) & (COC=FALSE) & (pilot_response=FALSE ) & (horizontal_dist=1000) & (move_direction=STN)&(auto_resolver=TRUE) :up;
+   			TRUE:climb;
+ esac;
+
+ VAR 
+ next_atm_layer :  {layer_1,layer_2,layer_3,layer_4};
+ ASSIGN
+ next(next_atm_layer):=
+ case
+ 			(atm_layer=layer_4) & (COC=TRUE) & (pilot_response=FALSE ) & (horizontal_dist>1000) & (move_direction=ETW)&(auto_resolver=TRUE) :layer_3;
+ 			(atm_layer=layer_2) & (COC=TRUE) & (pilot_response=FALSE ) & (horizontal_dist>1000) & (move_direction=WTE)&(auto_resolver=TRUE) :layer_3;
+ 			(atm_layer=layer_2) & (COC=TRUE) & (pilot_response=FALSE ) & (horizontal_dist>1000) & (move_direction=NTS)&(auto_resolver=TRUE) :layer_3;
+ 			(atm_layer=layer_4) & (COC=TRUE) & (pilot_response=FALSE ) & (horizontal_dist>1000) & (move_direction=STN)&(auto_resolver=TRUE) :layer_3;
+ 			TRUE:next_atm_layer;
+ esac;
+
+VAR
+climb_status : {up,down,no};
+
+ASSIGN
+next(climb_status):=
+case
+			(atm_layer=layer_4) & COC & auto_resolver=TRUE:down;
+			(atm_layer=layer_2) & COC & auto_resolver=TRUE:up;
+			(atm_layer=layer_2) & COC & auto_resolver=TRUE:up;
+			(atm_layer=layer_4) & COC & auto_resolver=TRUE:down;
+			TRUE:climb_status;
+esac;
+
+
+
+
+
+
+
