@@ -1,0 +1,172 @@
+\documentclass[a4paper,11pt,flegn]{article}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage[utf8]{inputenc}
+\usepackage{csquotes}
+
+\usepackage[notes,backend=biber]{biblatex-chicago}
+
+\newcommand{\institution}{Iowa State University}
+\newcommand{\pagetitle}{Comparitive study of an explicit state and symbolic model checking using a TCAS system}
+\newcommand{\projectdate}{May 2017}
+\newcommand{\coursecode}{AERE/COMS 407X/507X}
+\newcommand{\authora}{Avinash Saikia}
+\newcommand{\authorb}{Chandan Kumar}
+\newcommand{\depta}{Department of Aerospace Engineering}
+\newcommand{\deptb}{Department of Computer Science}
+
+
+\newcommand{\materials}{Non-programmable Calculators; Mathematical tables}
+\newcommand{\lastwords}{End of Examination}
+
+
+
+%% margins %%
+\setlength{\topmargin}{0cm}
+\setlength{\textheight}{9.25in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\evensidemargin}{0.0in}
+\setlength{\textwidth}{16cm}
+\setlength{\parskip}{0.3cm}
+\pagestyle{fancy}
+\lhead{} 
+\chead{} 
+\rhead{} 
+\lfoot{} 
+%\cfoot{\footnotesize{Page \thepage \ of \pageref{finalpage} -- \pagetitle \ (\coursecode)}} 
+\rfoot{} 
+
+\renewcommand{\headrulewidth}{0pt} %Do not print a rule below the header
+\renewcommand{\footrulewidth}{0pt}
+
+
+\begin{document}
+
+\begin{center}
+%\vspace{5cm}
+\large\textbf{\pagetitle}
+\end{center}
+
+\begin{center}
+\vspace{5 cm}
+\begin{center}
+\large{Final Project Report}
+\end{center}
+\vspace{5cm}
+\authora \hspace{90pt} \ \ \ \ \ \ \  \authorb \\
+\depta \hspace{20pt} \deptb
+\begin{center}
+
+\end{center}
+\institution
+\end{center}
+
+\begin{center}
+\coursecode
+\end{center}
+
+
+\newpage
+\begin{center}
+\Large\textbf{Acknowledgement}\\
+\end{center}
+\vspace{1 cm}
+We would like to extend our gratitude to Prof. Kristin Y Rozier for her tremendous help and effort in making this project a success. We would also like to thank her for teaching us the course on \textit{Applied Formal Methods} which enabled us to learn various tools and concepts  pertaining not only to this project but also the wide range of application in real life. \\
+
+We would also like to thank our colleagues and classmates for their constructive criticism, encouragement and suggestions.Last but not the least we would like to thank Iowa State University for providing the platform and facilities , which helped greatly in the success of this project.
+\newpage
+\tableofcontents
+\newpage
+\section{Intoduction}
+\vspace{0.3 cm}
+Testing and Simulation is one way to determine the effectiveness of a model , but there are several limitiatons to it when it comes to output generation. Many a times these activities are done in an "idle" situation and simulation of a real-life scenario is not possible.In software testings , we cannot come to a conclusion that "if it works for 2 data points, it doesnot mean it will work for every data points". Also , there various issues related to software testing - there could be bugs that is very difficult to find/notice . Testing cannot solely depend of boundary conditions.\\
+
+Also , the reliability of a software is questiuonable. It cannot really give the precise results if the interaction between the software and the hardware is disturbed , for example a hardware wear can effect the output of the software. A siftware can have infinite states whereas a hardware have a clear difference between data and controls- fixed number of bits. To overcome these challanges one might ponder- "how are we going to do it?".This is when Formal Methods and its applications come into play.\\
+
+\subsection{Formal Methods}
+Formal Methods is  a numerically rigorous technique for specific design and verification of software and hardware systems.In Formal Methods both the output and input are user controlled and is based on 2 factors: \begin{enumerate}
+\item[a]What is does
+\item[b]How it behaves.
+\end{enumerate}
+where "it" refers to a system.\\
+The Formal Methods works on formal language also called a temporal logic formulas-which are based on propisotional logic. They are \begin{enumerate}
+\item[a]Linear Temporal Logic (LTL)
+\item[b]Computational Tree Logic (CTL)
+\item[c]CTL$^*$
+\end{enumerate}
+There are two kinds of Formal Methods viz. Model Checking and Theorem Proving.
+\begin{enumerate}
+\item[a]Model Checking:\\
+Clarke \& Emerson 1981 et al. “Model checking is an automated technique that, given
+a finite-state model of a system and a logical property,
+systematically checks whether this property holds for
+(a given initial state in) that model.”
+Its intuitive definition is : $$M \vdash \Phi $$
+\item[b]Therom Proving:\\
+It describes the system in formal language and satisfies type checking and other proof obligations. One can introduce behaviour properties: axioms, rules and system behaviours.
+\end{enumerate}
+
+
+This report deals with the comparasion of 2 kinds of model checking tools- SPIN which is an explicit state model checker and nuXmv which is a symbolic model checker.A performance analysis has been done on these tools using  TCAS (Traffic Collision Avoidance System)
+\subsection{SPIN}
+Spin\autocite{1} was one the first model checker developed, starting in 1980. It introduced the classical approach for onthe-fly
+LTL model checking. Specifications are written in Promela and properties in LTL. An LTL property
+is compiled in a Promela never claim, i.e. a Büchi automaton. Spin generates the C source code of an
+on-the-fly verifier. Once compiled, this verifier checks if the property is satisfied by the model. Working
+on-the-fly means that Spin avoids the construction of a global state transition graph. However, it implies
+that transitions are (re-)computed for each property to verify. Hence, if there are n properties to verify, a
+transition is potentially computed n times, depending on optimizations.
+Promela, the model specification language of Spin, is inspired from C. Hence, it is an imperative language,
+with constructs to handle concurrent processes. State variables can be global and accessed by any
+process. Promela offers basic types like char, bit, int and arrays of these types. Processes can communicate
+by writing and reading over a channel, either synchronously using a channel of length 0, or asynchronously,
+using a channel of length greater than 0. Operator atomic allows a compound statement to be
+considered as a single atomic transition, except when this compound contains a blocking statement, such as
+a guard or a blocking write or read over a channel, in which case the execution of the atomic construct can
+be interrupted and control transferred to another process. Statements can be labeled and these labels can be
+used in LTL formulae.
+Spin uses propositional LTL, with its traditional operators always, eventually and until. The latter is
+sometimes referred as the “strong until” operator, as opposed to the “weak until” operator. The next operator
+is not allowed to ensure that partial order reduction can be used during the model checking. An LTL formula
+can refer to labels and state variable values of a Promela specification. Spin only considers states; there is
+no notion of event on a transition. An LTL formula holds for a Promela specification if and only if it holds
+for every possible run of the Promela model. A run is an execution trace consisting of the sequence of states
+visited during execution. It can be infinite.
+\subsection{NuXMV}
+NuSMV\autocite{1} is a model checker based on the SMV (Symbolic Model Verifier) software, which was the first
+implementation of the methodology called Symbolic Model Checking described in [15]. This class of model
+checkers verifies temporal logic properties in finite state systems with “implicit” techniques. NuSMV uses
+a symbolic representation of the specification in order to check a model against a property. Originally, SMV
+was a tool for checking CTL properties on a symbolic model. But NuSMV is also able to deal with LTL
+(+Past) formulae and SAT-based Bounded Model Checking. The model checker allows to write properties
+specification both in CTL or LTL and to choose between BDD-based symbolic model checking and bounded
+model checking.
+NuSMV uses the SMV decription language to specify finite state machines. A specification consists of
+module declarations and each module may include variable declarations and constraints. System transitions
+are modelled by assignment contraints or transition constraints, which define next values for declared variables in a module. An assignment gives explicitly a value for a variable in the next step, while a transition
+constraint, given by a boolean formula, restricts the set of potential next values. Each module can be instantiated
+by another one, for example by the main module, as a local variable. In fact, each instance of a module
+is by default processed synchronously with the others during an execution. But NuSMV can also model
+interleaving concurrency by using the “process” keyword in module instantiation. To get different instances
+of module, instantiations can be parameterized. However, the description language is quite low-level. All
+assignments, parameters or array indexes have to be constant. Thus, specifications may be longer than in
+Promela, because each case has to be explicitly written. As NuSMV modules can declare state variables and
+input variables, an SMV specification can be both state or event oriented. Input variables are used to label
+incoming transitions and their values can only be determined by specifying transition constraints.
+CTL properties can only be expressed by using state variables, but NuSMV allows to use input variables
+and state variables in LTL specifications. Moreover, NuSMV can also check invariant properties, which
+can be written in a temporal manner as Always p where p is a boolean formula. Invariant specifications are
+checked by a specialized algorithm during reachability analysis, that gives a result faster than CTL or LTL
+algorithms.
+\section{Motivation}
+\section{TCAS}
+\subsection{Specifciations}
+
+
+
+
+
+
+
+
+\end{document}
